@@ -18,7 +18,8 @@ public class Model {
 		this.connDB = connDB;
 	}
 
-	//Método que conecta con la base de datos seleccionada.
+	
+	//Metodo que conecta con la base de datos seleccionada.
 	public Connection connectToBD() {	
 		this.conn = null;
 		try {
@@ -40,19 +41,14 @@ public class Model {
 	
 		return conn;
 	}
-
-	// ************* C R U D -- INSERT   READ   UPDATE   DELETE **************
 	
-	public void createoOnBD() {
-		
-	}
-	
-	public ResultSet readOnBD(Connection conn, String tabla) {
-		String sql = "select * from " + tabla;
-		ResultSet myResulSet = null ;
+	public ResultSet readDDBBNames() {
+		ResultSet myResulSet = null;
 		try {
 			Statement myStatement = conn.createStatement();
-			myResulSet = myStatement.executeQuery(sql);
+			myResulSet = myStatement.executeQuery("SELECT DISTINCT TABLE_SCHEMA FROM INFORMATION_SCHEMA.COLUMNS "
+					+ "WHERE TABLE_SCHEMA <> 'information_schema' and TABLE_SCHEMA <> 'performance_schema' "
+					+ "and TABLE_SCHEMA <> 'mysql';");
 		} catch (SQLException e) {;
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -60,11 +56,55 @@ public class Model {
 		return myResulSet;
 	}
 	
+	public ResultSet readTableNames(String DBName) {
+		ResultSet myResultSet = null;
+		try {
+			Statement myStatement = conn.createStatement();
+			myResultSet = myStatement.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" + DBName + "';");
+			
+		} catch (SQLException e) {;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return myResultSet;
+	}
+
+	// ************* C R U D -- INSERT   READ   UPDATE   DELETE **************
+	
+	public void createoOnBD() {
+		
+	}
+	
+	public ResultSet readOnBD(String DBname, String tabla, String sql) {
+		ResultSet myResultSet = null;
+		try {
+			Statement myStatement = conn.createStatement();
+			myStatement.execute("use "+ DBname);
+			myResultSet = myStatement.executeQuery(sql + tabla + ";");	
+		} catch (SQLException e) {;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return myResultSet;
+	}
+	
 	public void updateOnBD() {
 		
 	}
 	
-	public void  deleteOnBD() {
+	public void  deleteOnBD(String DBname, String tabla, String sql) {
+		int delete;
+		try {
+			Statement myStatement = conn.createStatement();
+			myStatement.execute("use "+ DBname);
+			delete = myStatement.executeUpdate(sql + tabla + ";");	//si no se ha borrado nada devuelve cero
+		} catch (SQLException e) {;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 		
 	}
 
